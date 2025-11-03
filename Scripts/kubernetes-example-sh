@@ -1,0 +1,48 @@
+# An example of a Kubernetes script
+
+# Design Process
+# 0. Figure out what you want to do
+# 1. Identify tools you'll want to use (most scripts are stitching tools together)
+# 2. Sketch it out in the terminal
+# 3. Copy it into a script
+# 4. Pull out variables and inputs (parameterize)
+# 5. Add guards, checks, loops as needed (guard clauses checking for files, etc.)
+######
+
+# tools we will need
+# Spin up local Kubernetes cluster and install some apps
+# Tools needed:
+# kind -- provision the cluster
+# kubectl -- interact with the cluster
+# helm -- install apps
+#######
+
+# sketch out / test steps in terminal
+# Step 1 - Create cluster
+# -- kind create cluster --name playground
+# Step 2 - Installs an app
+# -- helm repo add jenkins https://charts.jenkins.io
+# -- helm repo update
+# -- helm upgrade --install jenkins jenkins/jenkins -n jenkins --create-namespace --wait
+# Step 3 - Port forwards to Jenkins
+# -- kubectl port-forward svc/jenkins 8080:8080 -n jenkins
+#########
+
+# ---------------------------------------------------------------------
+# finalized script
+# ---------------------------------------------------------------------
+
+#!/usr/bin/env bash
+set -euo pipefail
+
+cluster_name="${1:="playground"}"
+
+kind create cluster --name "$cluster_name"
+
+helm repo add jenkins https://charts.jenkins.io
+helm repo update
+helm upgrade --install jenkins jenkins/jenkins -n jenkins --create-namespace --wait
+
+kubectl port-forward svc/jenkins 8080:8080 -n jenkins
+
+
